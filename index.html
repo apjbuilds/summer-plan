@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APJBuilds — Summer Lock-In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ============================================================
+     EDIT YOUR CONTENT DOWN IN THE <script> BLOCK AT THE BOTTOM.
+     Look for "const DATA = {" — that's the only part you need
+     to touch to update logs, scores, and dates.
+     ============================================================ */
+
+  :root{
+    --bg: #0A0908;
+    --bg-panel: #141110;
+    --bg-panel-2: #1B1613;
+    --hazard: #FF5A1F;
+    --hazard-dim: #7a2c10;
+    --alert: #FF3B30;
+    --amber: #FFB000;
+    --cream: #EDE7DA;
+    --muted: #8A8178;
+    --line: #2A2420;
+    --green: #4ADE80;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'IBM Plex Mono', monospace;
+    background-image:
+      repeating-linear-gradient(135deg, rgba(255,90,31,0.025) 0px, rgba(255,90,31,0.025) 1px, transparent 1px, transparent 14px);
+    min-height: 100vh;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* ===== HEADER ===== */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 2px solid var(--hazard);
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+  }
+  .wordmark {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+  .wordmark span { color: var(--hazard); }
+  .tagline {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .today-badge {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: right;
+  }
+  .today-badge b { color: var(--amber); }
+
+  /* ===== COUNTDOWN HERO ===== */
+  .hero {
+    background: linear-gradient(160deg, var(--bg-panel), var(--bg-panel-2));
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--alert);
+    border-radius: 6px;
+    padding: 22px 22px 20px;
+    margin-bottom: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, rgba(255,59,48,0.05) 0 10px, transparent 10px 20px);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--alert);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .countdown-row {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .clock {
+    display: flex;
+    gap: 10px;
+  }
+  .digit-block { text-align: center; }
+  .digit {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    font-size: 46px;
+    line-height: 1;
+    color: var(--hazard);
+    text-shadow: 0 0 18px rgba(255,90,31,0.45);
+    background: #000;
+    border: 1px solid var(--hazard-dim);
+    border-radius: 4px;
+    padding: 8px 10px;
+    min-width: 62px;
+  }
+  .digit-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .secondary-clock { opacity: 0.75; }
+  .secondary-clock .digit { font-size: 30px; padding: 5px 8px; min-width: 42px; color: var(--amber); border-color: #6b4a0e; text-shadow: 0 0 10px rgba(255,176,0,0.35); }
+
+  .gauge-wrap { margin-top: 20px; }
+  .gauge-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .gauge {
+    height: 14px;
+    background: #000;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .gauge-fill {
+    height: 100%;
+    background: repeating-linear-gradient(90deg, var(--alert) 0 8px, var(--hazard) 8px 16px);
+    box-shadow: 0 0 10px rgba(255,59,48,0.5);
+  }
+
+  /* ===== COLUMNS ===== */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+  @media (max-width: 760px){ .columns { grid-template-columns: 1fr; } }
+
+  .col {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 18px 6px;
+  }
+  .col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+  .col-title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 15px;
+  }
+  .col.cs .col-title { color: var(--hazard); }
+  .col.sat .col-title { color: var(--amber); }
+  .col-sub { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  .stat-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .stat-line b { color: var(--cream); font-size: 14px; }
+  .stat-line .arrow { color: var(--green); }
+
+  .log-item {
+    padding: 10px 0 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-date {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .log-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--cream);
+    margin: 3px 0 3px;
+  }
+  .log-desc { font-size: 12px; color: #B8AFA2; line-height: 1.5; }
+  .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+    border: 1px solid currentColor;
+  }
+  .tag.project { color: var(--hazard); }
+  .tag.ec { color: #7DB0FF; }
+  .tag.learning { color: var(--green); }
+  .tag.score { color: var(--amber); }
+
+  .empty-log { font-size: 12px; color: var(--muted); padding: 14px 0; }
+
+  /* ===== CALENDAR ===== */
+  .cal-section {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px;
+    margin-bottom: 20px;
+  }
+  .cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .cal-title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 15px;
+    color: var(--cream);
+  }
+  .cal-legend { display: flex; gap: 14px; font-size: 10px; color: var(--muted); flex-wrap: wrap; }
+  .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  .month-grid { margin-bottom: 20px; }
+  .month-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .dow {
+    font-size: 9px;
+    text-align: center;
+    color: var(--muted);
+    letter-spacing: 1px;
+    padding-bottom: 2px;
+  }
+  .day-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: #0f0c0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted);
+    position: relative;
+  }
+  .day-cell.blank { border: none; background: transparent; }
+  .day-cell.past { background: #150f0c; color: #6b6259; }
+  .day-cell.past.missed { background: repeating-linear-gradient(45deg, #1a0d0a 0 4px, #150f0c 4px 8px); }
+  .day-cell.today { border-color: var(--alert); box-shadow: 0 0 0 1px var(--alert), 0 0 10px rgba(255,59,48,0.5); color: var(--cream); font-weight: 700; }
+  .day-cell.logged { border-color: var(--hazard-dim); }
+  .dots { display: flex; gap: 2px; margin-top: 2px; }
+  .dot { width: 4px; height: 4px; border-radius: 50%; }
+  .dot.cs { background: var(--hazard); }
+  .dot.sat { background: var(--amber); }
+  .dot.sattest { background: var(--alert); box-shadow: 0 0 4px var(--alert); }
+
+  footer {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding-top: 10px;
+  }
+  footer b { color: var(--hazard); }
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="wordmark">APJ<span>BUILDS</span></div>
+      <div class="tagline">Summer Lock-In · CS Reps + SAT Grind</div>
+    </div>
+    <div class="today-badge">TODAY IS <b id="todayLabel">—</b></div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-label">⚠ T-MINUS TO SAT TEST DAY</div>
+    <div class="countdown-row">
+      <div class="clock" id="satClock"></div>
+    </div>
+
+    <div class="hero-label" style="margin-top:18px;">SUMMER DEADLINE</div>
+    <div class="countdown-row secondary-clock">
+      <div class="clock" id="endClock"></div>
+    </div>
+
+    <div class="gauge-wrap">
+      <div class="gauge-label"><span>SUMMER BURNED</span><span id="gaugeText">—</span></div>
+      <div class="gauge"><div class="gauge-fill" id="gaugeFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="columns">
+
+    <div class="col cs">
+      <div class="col-header">
+        <div class="col-title">CS Log</div>
+        <div class="col-sub" id="csCount">0 entries</div>
+      </div>
+      <div id="csLogList"></div>
+    </div>
+
+    <div class="col sat">
+      <div class="col-header">
+        <div class="col-title">SAT Log</div>
+        <div class="col-sub">baseline → target</div>
+      </div>
+      <div class="stat-line">
+        <span>SCORE</span>
+        <span><b id="satBaseline">—</b> <span class="arrow">→</span> <b id="satTarget">—</b></span>
+      </div>
+      <div id="satLogList"></div>
+    </div>
+
+  </div>
+
+  <div class="cal-section">
+    <div class="cal-header">
+      <div class="cal-title">Burn Chart</div>
+      <div class="cal-legend">
+        <span><span class="swatch" style="background:var(--hazard)"></span>CS</span>
+        <span><span class="swatch" style="background:var(--amber)"></span>SAT</span>
+        <span><span class="swatch" style="background:var(--alert)"></span>Test Day</span>
+        <span><span class="swatch" style="background:#150f0c;border:1px solid var(--line)"></span>No log</span>
+      </div>
+    </div>
+    <div id="calendarContainer"></div>
+  </div>
+
+  <footer>Built by <b>APJBuilds</b> · updated by hand, one commit at a time</footer>
+
+</div>
+
+<script>
+/* ================================================================
+   EDIT EVERYTHING BELOW. This is the only section you need to touch.
+   Dates use "YYYY-MM-DD" format. Add as many log entries as you want.
+   ================================================================ */
+
+const DATA = {
+  name: "APJBuilds",
+  startDate: "2026-07-10",
+  satDate:   "2026-08-22",
+  endDate:   "2026-08-31",
+
+  satBaseline: 1300,
+  satTargetLow: 1400,
+  satTargetHigh: 1450,
+
+  // tag options for csLog: "project", "ec", "learning"
+  csLog: [
+    { date: "2026-07-10", title: "Site is live", desc: "Built this tracker. Everything from here gets logged for real.", tag: "project" }
+    // Add more like:
+    // { date: "2026-07-14", title: "Started X project", desc: "Short note on what you did.", tag: "project" },
+  ],
+
+  // satLog entries can include a score (practice test) or just be a study session
+  satLog: [
+    { date: "2026-07-10", title: "Baseline set", desc: "Starting point before the summer grind.", score: 1300 }
+    // { date: "2026-07-17", title: "Practice Test 1", desc: "Full timed test.", score: 1330 },
+  ]
+};
+
+/* ================================================================
+   Everything past this line is display logic — no need to edit.
+   ================================================================ */
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+
+const NOW = new Date();
+const START = parseDate(DATA.startDate);
+const SAT = parseDate(DATA.satDate);
+SAT.setHours(23,59,59,0);
+const END = parseDate(DATA.endDate);
+END.setHours(23,59,59,0);
+
+document.getElementById('todayLabel').textContent = NOW.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }).toUpperCase();
+
+function renderClock(el, targetDate){
+  const diff = Math.max(0, targetDate - new Date());
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+  el.innerHTML = `
+    <div class="digit-block"><div class="digit">${days}</div><div class="digit-label">days</div></div>
+    <div class="digit-block"><div class="digit">${pad(hours)}</div><div class="digit-label">hrs</div></div>
+    <div class="digit-block"><div class="digit">${pad(mins)}</div><div class="digit-label">min</div></div>
+    <div class="digit-block"><div class="digit">${pad(secs)}</div><div class="digit-label">sec</div></div>
+  `;
+}
+
+function tick(){
+  renderClock(document.getElementById('satClock'), SAT);
+  renderClock(document.getElementById('endClock'), END);
+}
+tick();
+setInterval(tick, 1000);
+
+// gauge
+const totalSpan = END - START;
+const elapsed = Math.min(Math.max(NOW - START, 0), totalSpan);
+const pct = Math.round((elapsed / totalSpan) * 100);
+document.getElementById('gaugeFill').style.width = pct + '%';
+document.getElementById('gaugeText').textContent = pct + '% GONE · ' + (100-pct) + '% LEFT';
+
+// SAT score summary
+document.getElementById('satBaseline').textContent = DATA.satBaseline;
+document.getElementById('satTarget').textContent = DATA.satTargetLow + '–' + DATA.satTargetHigh;
+
+// logs
+function renderLog(containerId, entries, kind){
+  const container = document.getElementById(containerId);
+  if(!entries || entries.length === 0){
+    container.innerHTML = '<div class="empty-log">No entries logged yet.</div>';
+    return;
+  }
+  const sorted = [...entries].sort((a,b) => parseDate(b.date) - parseDate(a.date));
+  container.innerHTML = sorted.map(e => {
+    const d = parseDate(e.date);
+    const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric' }).toUpperCase();
+    let tagHtml = '';
+    if(kind === 'cs' && e.tag){
+      tagHtml = `<span class="tag ${e.tag}">${e.tag}</span>`;
+    }
+    if(kind === 'sat' && e.score){
+      tagHtml = `<span class="tag score">${e.score}</span>`;
+    }
+    return `
+      <div class="log-item">
+        <div class="log-date">${dateStr}</div>
+        <div class="log-title">${tagHtml}${e.title}</div>
+        <div class="log-desc">${e.desc || ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+renderLog('csLogList', DATA.csLog, 'cs');
+renderLog('satLogList', DATA.satLog, 'sat');
+document.getElementById('csCount').textContent = DATA.csLog.length + ' entries';
+
+// calendar
+function buildActivityMap(){
+  const map = {};
+  DATA.csLog.forEach(e => {
+    map[e.date] = map[e.date] || { cs:false, sat:false };
+    map[e.date].cs = true;
+  });
+  DATA.satLog.forEach(e => {
+    map[e.date] = map[e.date] || { cs:false, sat:false };
+    map[e.date].sat = true;
+  });
+  return map;
+}
+const activity = buildActivityMap();
+
+function fmtKey(y,m,d){ return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+function renderMonth(container, year, month, label){
+  const monthDiv = document.createElement('div');
+  monthDiv.className = 'month-grid';
+  monthDiv.innerHTML = `<div class="month-label">${label}</div>`;
+
+  const grid = document.createElement('div');
+  grid.className = 'days-grid';
+
+  ['S','M','T','W','T','F','S'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+
+  for(let i=0;i<startOffset;i++){
+    const blank = document.createElement('div');
+    blank.className = 'day-cell blank';
+    grid.appendChild(blank);
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const cellDate = new Date(year, month, d);
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+
+    const key = fmtKey(year, month, d);
+    const act = activity[key];
+    const isPast = cellDate < new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+    const isToday = sameDay(cellDate, NOW);
+    const isTestDay = sameDay(cellDate, SAT);
+    const inRange = cellDate >= START && cellDate <= END;
+
+    if(isPast && inRange) cell.classList.add('past');
+    if(isPast && inRange && !act) cell.classList.add('missed');
+    if(act) cell.classList.add('logged');
+    if(isToday) cell.classList.add('today');
+
+    let dotsHtml = '';
+    if(act || isTestDay){
+      dotsHtml = '<div class="dots">';
+      if(isTestDay) dotsHtml += '<span class="dot sattest"></span>';
+      if(act && act.cs) dotsHtml += '<span class="dot cs"></span>';
+      if(act && act.sat) dotsHtml += '<span class="dot sat"></span>';
+      dotsHtml += '</div>';
+    }
+
+    cell.innerHTML = `<span>${d}</span>${dotsHtml}`;
+    grid.appendChild(cell);
+  }
+
+  monthDiv.appendChild(grid);
+  container.appendChild(monthDiv);
+}
+
+const calContainer = document.getElementById('calendarContainer');
+const monthsToShow = [];
+let cursor = new Date(START.getFullYear(), START.getMonth(), 1);
+const endCursor = new Date(END.getFullYear(), END.getMonth(), 1);
+while(cursor <= endCursor){
+  monthsToShow.push({ year: cursor.getFullYear(), month: cursor.getMonth() });
+  cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+}
+monthsToShow.forEach(m => {
+  const label = new Date(m.year, m.month, 1).toLocaleDateString('en-US', { month:'long', year:'numeric' }).toUpperCase();
+  renderMonth(calContainer, m.year, m.month, label);
+});
+</script>
+
+</body>
+</html>
